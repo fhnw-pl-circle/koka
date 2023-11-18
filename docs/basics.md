@@ -113,8 +113,6 @@ for(1,10, fn(i)
 )
 ```
 
-
-
 ### Suspenders
 
 - arguments in parentheses are eagerly evaluated
@@ -210,7 +208,26 @@ fun hello()
   emit("hello world!")
 
 fun emit-hello()
+    with fun emit(s) println(s)
+    hello()
+// is equivalent to
+fun emit-hello()
     (handler
       fun emit(s) println(s))
         hello()
+
+```
+
+### Optional and named parameter
+
+- parameter can also be named using the pattern `name = value`
+- this allows introducing optional parameters by just providing a default value
+  in the function definition
+
+```koka
+fun sublist( xs : list<a>, start : int, len : int = xs.length ) : list<a>
+  if start <= 0 return xs.take(len)
+  match xs
+    Nil        -> Nil
+    Cons(_,xx) -> xx.sublist(start - 1, len)
 ```
