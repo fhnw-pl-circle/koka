@@ -88,13 +88,86 @@ fun raise-const() : console int
       42 
   8 + safe-divide(1,0)
 
-
 effect ask<a>
   ctl ask() : a
 
 fun add-twice() : ask<int> int 
   ask() + ask()
 
-fun static-nr() : int
-  with ctl ask() resume(42)
+fun ask-once() : int
+  var count := 0
+  with ctl ask()
+    count := count + 1
+    // resume with 42 on the first call, later just use 0
+    if count <= 1 then resume(42) else 0   
   add-twice()
+
+fun sugus(): int
+  with ctl ask()
+    val f = fn() 21
+    resume(f())
+  add-twice()
+
+
+
+fun ehello() : emit ()
+  emit("hello")
+  emit("world")
+
+fun emit-console( action )
+  with fun emit(msg) println(msg) 
+  action()
+
+fun ehello-console() : console ()
+  with emit-console
+  ehello()
+
+fun emit-collect( action : () -> <emit|e> () ) : e string
+  var lines := []
+  with handler
+    return(x)     lines.reverse.join("\n") 
+    fun emit(msg) lines := Cons(msg,lines)   
+  action()
+
+fun ehello-commit() : string
+  with emit-collect
+  ehello()
+
+// runs the following action, and handles raise using the given hnd-function
+fun catch( hnd: (string) -> e a, action : () -> <raise> a) : e a
+  with ctl raise(msg) hnd(msg)
+  action()
+
+fun catch-example()
+  with catch( fn(msg) { println("error: " ++ msg); 42 }) // handles raise
+  safe-divide(1,0)
+
+fun raise-maybe( action : () -> <raise|e> a ) : e maybe<a>
+  with handler
+    return(x)      Just(x)   // normal return: wrap in Just
+    ctl raise(msg) Nothing   // exception: return Nothing directly  
+  action()
+
+fun div42( x : int, y : int )
+  with raise-maybe
+  safe-divide(x, y)
+
+effect state<a>
+  fun set( x: a ): ()
+  fun get(): a
+
+fun modify( x: int ) : state<int> ()
+  set(x)
+
+fun use-state( value: int )
+  var st := 0
+  with handler
+    return(_) st
+    fun get() st
+    fun set( x: int) 
+      if x >= 0 then 
+        return st := x 
+      else 
+        return st := 0
+  modify(value)
+  
