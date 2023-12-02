@@ -142,10 +142,12 @@ fun catch-example()
   with catch( fn(msg) { println("error: " ++ msg); 42 }) // handles raise
   safe-divide(1,0)
 
-fun raise-maybe( action : () -> <raise|e> a ) : e maybe<a>
+fun raise-maybe( action : () -> <raise, console|e> a ) : <console|e> maybe<a>
   with handler
     return(x)      Just(x)   // normal return: wrap in Just
-    ctl raise(msg) Nothing   // exception: return Nothing directly  
+    ctl raise(msg) 
+      println(msg)
+      Nothing   // exception: return Nothing directly  
   action()
 
 fun div42( x : int, y : int )
@@ -171,3 +173,89 @@ fun use-state( value: int )
         return st := 0
   modify(value)
   
+fun use-state2()
+  with return(x) Just(x)
+  25
+
+fun raise-maybe2( action: () -> <raise2<a>> int, value : a) : maybe<int>
+  with return(x) Just(x)
+  with handler
+    ctl raise2(msg) resume(value) // exception: return Nothing directly  
+  action()
+
+effect raise2<a>
+  ctl raise2( msg: string ) : a
+
+fun ask-const2() : int 
+  with fun ask() 21
+  add-twice() // returns 42
+
+fun positive-state(init: a, compare: (a: a, b: a) -> bool, action: () -> <state<a>, div|e> a): <div|e> a
+  var st := init
+  with handler
+    fun get() st
+    fun set( x ) 
+      if compare(x, init) then 
+        st := x 
+      else 
+        st := init
+  action()
+
+fun raise-either( action : () -> <raise|e> a ) : e either<string, a>
+  with handler
+    return(x)      Right(x)   // normal return: wrap in Just
+    ctl raise(msg) Left(msg) 
+  action()
+
+fun state-raise(init : int) : _e either<string, int>
+  with raise-either
+  with positive-state(init, fn(a: int,b: int) a >= b)
+  val i = get()
+  if i.is-odd then raise("no odds") else
+    set( i / 2 )
+    i
+
+// fun state-raise2(init)
+//   with positive-state(init, fn(_a,_b) True)
+//   with raise-either
+//   val i = get()
+//   i
+
+fun mask-print( action)
+  with ctl raise(msg) 42 
+  val x = action() // gets not handled by the internally defined raise handler
+  if x.is-odd then raise("wrong")   // internal exception
+  x
+
+
+fun emit-quoted1( action )
+  var str := ""
+  with fun emit(msg) str := msg
+  action()
+
+fun emit-quoted2( action : () -> <emit|e> a ) : <emit|e> a
+  with override fun emit(msg) emit("\"" ++ msg ++ "\"") 
+  action()
+
+
+
+effect ctl choice() : bool
+
+fun xor() : choice bool
+  val p = choice()
+  val q = choice()
+  if p then !q else q
+
+val init = fn() {println("init")}
+val multi = fn() {println("multi")}
+
+
+// fun choice-all(action : () -> <choice|e> a) : e list<a>
+//   with initially(init)
+//   with handler
+//     return(x)    [x] 
+//     ctl choice() resume(False) ++ resume(True) 
+//   action()
+
+
+
