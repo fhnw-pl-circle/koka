@@ -257,5 +257,7 @@ val multi = fn() {println("multi")}
 //     ctl choice() resume(False) ++ resume(True) 
 //   action()
 
-
-
+fip fun reverse-acc( xs: list<a>, acc : list<a>) : list<a>
+  match xs
+    Cons(x, xx) -> reverse-acc(xx, Cons(x, acc))
+    Nil -> acc

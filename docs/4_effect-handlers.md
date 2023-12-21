@@ -346,16 +346,13 @@ fun choice-state(action) : div list<(bool,int)>
   choice-all // result is a list
     pstate(0, action) // result is a tuple
 ```
-
-
-
 ### Initially and finally
 
 > Since handlers can resume once, never or several times one must pay attention
 > when interacting with external resources (e.g. files).
 
 The `finally` function takes as its first argument a function that is always
-executed exactly when returning:
+executed exactly once when returning:
 
 See the following example which works with a file and always closes it using
 the `finally` function:

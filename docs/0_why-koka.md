@@ -2,9 +2,9 @@
 
 ## Language features
 
-> Was bedeutet das genau? "Core features include first-class functions, a higher-rank impredicative
-polymorphic type- and effect system, algebraic data types, and effect
-handlers."
+> "Core features include first-class functions, a higher-rank impredicative
+> polymorphic type- and effect system, algebraic data types, and effect
+> handlers."
 
 
 ## Effect typing
