@@ -22,6 +22,9 @@ string
 console ()
 ```
 
+`ctrl+r` searches the history
+`ctrl+l` clears the console
+
 Load a file into the REPL:
 
 ```

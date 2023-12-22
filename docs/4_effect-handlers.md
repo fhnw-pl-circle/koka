@@ -21,7 +21,7 @@ It can be used like:
 
 ```koka
 fun safe-divide( x : int, y : int ) : raise int
-  if y==0 then raise("div-by-zero") else x / 
+  if y==0 then raise("div-by-zero") else x / y
 ```
 
 This newly created function can only be used in contexts, where the `raise`
@@ -141,7 +141,7 @@ effect state<a>
   fun set( x: a ): ()
   fun get(): a
 
-// set the state and return the current state
+// set the state
 fun modify( x: int ) : state<int> ()
   set(x)
 
